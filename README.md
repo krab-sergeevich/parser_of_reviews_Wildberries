@@ -54,8 +54,12 @@ Use for free and enjoy it:)
 
 ## Contact
 
-Danil Antipin - [@my_telegram](https://t.me/krab_sergeevich)
+Telegram - [@my_telegram](https://t.me/krab_sergeevich)
+
+EMail - info.antipin@yandex.ru
 
 Project Link: [https://github.com/krab-sergeevich/parser_of_reviews_Wildberries](https://github.com/krab-sergeevich/parser_of_reviews_Wildberries.git)
+
+Feel free to contact me if you have a questions. Have a nice day :)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
