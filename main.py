@@ -39,11 +39,6 @@ def dump_result_in_txt(name_data_color_size_local: list[str], reviews_of_custome
             count += 1
 
 
-# options: dict = {'proxy': {
-#     'http': "http://082DwD:c451Jd@91.188.243.73:9059",
-#     'https': "https://082DwD:c451Jd@91.188.243.73:9059",
-# }}
-
 browser.get(URL)
 scroll_page(browser)
 name_date_color_size = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
