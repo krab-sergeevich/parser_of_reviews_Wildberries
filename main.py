@@ -1,5 +1,4 @@
 """ That's a program to parse reviews about some product from Wildberries web-site """
-import time
 from datetime import date
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
