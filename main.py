@@ -24,6 +24,7 @@ def scroll_page(browser_local: webdriver):
         # Wait to load page
         # time.sleep(scroll_pause_time)
         browser.implicitly_wait(60.0)
+
         # Calculate new scroll height and compare with last scroll height
         new_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
         if new_height == last_height:
@@ -61,11 +62,6 @@ def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_o
 
 
 if __name__ == "__main__":
-    # options: dict = {'proxy': {
-    #     'http': "http://082DwD:c451Jd@91.188.243.73:9059",
-    #     'https': "https://082DwD:c451Jd@91.188.243.73:9059",
-    # }}
-
     browser.get(URL)
     scroll_page(browser)
     name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
