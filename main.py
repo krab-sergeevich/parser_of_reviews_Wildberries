@@ -1,5 +1,6 @@
 """ That's a program to parse reviews about some product from Wildberries web-site """
 from datetime import date
+
 import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -12,7 +13,6 @@ browser: webdriver = webdriver.Chrome(service=s)
 
 def scroll_page(browser_local: webdriver):
     """ scrolling to the end of the page"""
-    # scroll_pause_time: float = 3.0
 
     # Get scroll height
     last_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
