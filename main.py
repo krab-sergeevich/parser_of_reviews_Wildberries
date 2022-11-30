@@ -1,9 +1,10 @@
 """ That's a program to parse reviews about some product from Wildberries web-site """
 from datetime import date
+
+import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
-import pandas as pd
 
 s: Service = Service('/Users/macbookpro/Desktop/chromedriver')
 URL: str = 'https://www.wildberries.ru/catalog/21659599/feedbacks?imtId=10317392'
@@ -12,7 +13,6 @@ browser: webdriver = webdriver.Chrome(service=s)
 
 def scroll_page(browser_local: webdriver):
     """ scrolling to the end of the page"""
-    # scroll_pause_time: float = 3.0
 
     # Get scroll height
     last_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
@@ -22,7 +22,7 @@ def scroll_page(browser_local: webdriver):
         browser_local.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         # Wait to load page
-        browser.implicitly_wait(60.0)
+        browser.implicitly_wait(65.0)
 
         # Calculate new scroll height and compare with last scroll height
         new_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
@@ -57,4 +57,3 @@ if __name__ == "__main__":
     name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
     reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
     print(dump_result_in_pandas(name_date_color_size, reviews_of_customers))
-
