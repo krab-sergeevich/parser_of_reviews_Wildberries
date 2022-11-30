@@ -23,6 +23,7 @@ def scroll_page(browser_local: webdriver):
 
         # Wait to load page
         browser.implicitly_wait(60.0)
+
         # Calculate new scroll height and compare with last scroll height
         new_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
         if new_height == last_height:
@@ -56,3 +57,4 @@ if __name__ == "__main__":
     name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
     reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
     print(dump_result_in_pandas(name_date_color_size, reviews_of_customers))
+
