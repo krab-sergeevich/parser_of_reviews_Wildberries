@@ -57,4 +57,4 @@ if __name__ == "__main__":
     name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
     reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
     print(dump_result_in_pandas(name_date_color_size, reviews_of_customers))
-#new comment
+
