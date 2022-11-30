@@ -22,7 +22,6 @@ def scroll_page(browser_local: webdriver):
         browser_local.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         # Wait to load page
-        # time.sleep(scroll_pause_time)
         browser.implicitly_wait(60.0)
 
         # Calculate new scroll height and compare with last scroll height
@@ -30,15 +29,6 @@ def scroll_page(browser_local: webdriver):
         if new_height == last_height:
             break
         last_height: browser_local = new_height
-
-
-# def dump_result_in_txt(name_data_color_size_local: list[str], reviews_of_customers_local: list[str]):
-#     """ take info and dump in txt file """
-#     count: int = 1
-#     with open("reviews.txt", "w", encoding="utf-8") as file:
-#         for info_of_review, text_of_review in zip(name_data_color_size_local, reviews_of_customers_local):
-#             file.write(f'Номер отзыва: {count}\n{info_of_review}\n{text_of_review}\n\n')
-#             count += 1
 
 
 def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_of_customers_local: list[str]):
