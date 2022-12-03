@@ -1,4 +1,5 @@
 """ That's a program to parse reviews about some product from Wildberries web-site """
+import csv
 from datetime import date
 
 import pandas as pd
@@ -13,22 +14,23 @@ browser: webdriver = webdriver.Chrome(service=s)
 
 def scroll_page(browser_local: webdriver):
     """ scrolling to the end of the page"""
-
-    # Get scroll height
     last_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
-
     while True:
-        # Scroll down to bottom
         browser_local.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-        # Wait to load page
         browser.implicitly_wait(65.0)
-
-        # Calculate new scroll height and compare with last scroll height
         new_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
         if new_height == last_height:
             break
         last_height: browser_local = new_height
+
+
+def dump_result_in_csv(name_data_color_size_local, reviews_of_customers_local):
+    """ take info and dump in csv file """
+    with open('result.csv', 'w', encoding='UTF8') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Имя заказчика', 'Дата отзыва', 'Цвет', 'Размер', 'Комментарий', 'Дата парсинга'])
+        for i, j in zip(name_data_color_size_local, reviews_of_customers_local):
+            writer.writerow([i[0], i[1], i[2][6:], i[3][8:], j, str(date.today().strftime("%d/%m/%Y"))])
 
 
 def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_of_customers_local: list[str]):
@@ -56,4 +58,4 @@ if __name__ == "__main__":
     scroll_page(browser)
     name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
     reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
-    print(dump_result_in_pandas(name_date_color_size, reviews_of_customers))
+    dump_result_in_csv(name_date_color_size, reviews_of_customers)
