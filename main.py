@@ -1,5 +1,6 @@
 """ That's a program to parse reviews about some product from Wildberries web-site """
 import csv
+import logging
 from datetime import date
 
 import pandas as pd
@@ -8,29 +9,36 @@ from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
 
 s: Service = Service('/Users/macbookpro/Desktop/chromedriver')
-URL: str = 'https://www.wildberries.ru/catalog/21659599/feedbacks?imtId=10317392'
 browser: webdriver = webdriver.Chrome(service=s)
+logging.basicConfig(filename='app.log', filemode='w', format='%(process)d-%(levelname)s-%(message)s',
+                    level=logging.INFO)
 
 
 def scroll_page(browser_local: webdriver):
     """ scrolling to the end of the page"""
     last_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
+    logging.info("Take height of the page")
     while True:
         browser_local.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        logging.info("Scroll page to the down")
         browser.implicitly_wait(65.0)
+        logging.info("Wait for loading new information")
         new_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
+        logging.info("Take new height of the page")
         if new_height == last_height:
             break
         last_height: browser_local = new_height
 
 
-def dump_result_in_csv(name_data_color_size_local, reviews_of_customers_local):
+def dump_result_in_csv(name_data_color_size_local, reviews_of_customers_local, number_local):
     """ take info and dump in csv file """
-    with open('result.csv', 'w', encoding='UTF8') as file:
+    with open(f'result{number_local}.csv', 'w', encoding='UTF8') as file:
         writer = csv.writer(file)
         writer.writerow(['Имя заказчика', 'Дата отзыва', 'Цвет', 'Размер', 'Комментарий', 'Дата парсинга'])
+        logging.info("Write first row to csv to create names of columns")
         for i, j in zip(name_data_color_size_local, reviews_of_customers_local):
             writer.writerow([i[0], i[1], i[2][6:], i[3][8:], j, str(date.today().strftime("%d/%m/%Y"))])
+        logging.info("Write infomation in csv file")
 
 
 def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_of_customers_local: list[str]):
@@ -47,15 +55,24 @@ def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_o
                "Дата парсинга": str(date.today().strftime('%d/%m/%Y')).ljust(ljust_formatter)}
         if count_of_review == 1:
             series = pd.Series(dct)
+            logging.info("Create pandas series and write information in series")
         else:
             series.append(pd.Series(dct))
+            logging.info("Write infomation in series")
         count_of_review += 1
     return series
 
 
 if __name__ == "__main__":
-    browser.get(URL)
-    scroll_page(browser)
-    name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
-    reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
-    dump_result_in_csv(name_date_color_size, reviews_of_customers)
+    list_of_links = ['https://www.wildberries.ru/catalog/21659599/feedbacks?imtId=10317392',
+                     'https://www.wildberries.ru/catalog/37899721/feedbacks?imtId=28503636',
+                     'https://www.wildberries.ru/catalog/103125061/feedbacks?imtId=79985311']
+    for number, link in enumerate(list_of_links, 1):
+        browser.get(link)
+        logging.info("browset get link")
+        scroll_page(browser)
+        name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
+        reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
+        logging.info("Take name, date, color, size, text_of_reviews from page")
+        dump_result_in_csv(name_date_color_size, reviews_of_customers, number)
+        logging.info("FINISHED!")
