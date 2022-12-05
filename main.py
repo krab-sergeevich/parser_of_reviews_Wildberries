@@ -30,20 +30,20 @@ def scroll_page(browser_local: webdriver):
         last_height: browser_local = new_height
 
 
-def dump_result_in_csv(name_data_color_size_local, reviews_of_customers_local, number_local):
+def dump_result_csv(review_info_local: list[list[str]], review_text_local: list[str], number_local) -> None:
     """ take info and dump in csv file """
     with open(f'result{number_local}.csv', 'w', encoding='UTF8') as file:
         writer = csv.writer(file)
         writer.writerow(['Имя заказчика', 'Дата отзыва', 'Цвет', 'Размер', 'Комментарий', 'Дата парсинга'])
         logging.info("Write first row to csv to create names of columns")
-        for i, j in zip(name_data_color_size_local, reviews_of_customers_local):
+        for i, j in zip(review_info_local, review_text_local):
             writer.writerow([i[0], i[1], i[2][6:], i[3][8:], j, str(date.today().strftime("%d/%m/%Y"))])
         logging.info("Write infomation in csv file")
 
 
-def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_of_customers_local: list[str]):
+def dump_result_pandas(review_info_local: list[list[str]], review_text_local: list[str]) -> pd.Series:
     """ take info and dump in pandas series """
-    for info_element, review_element in zip(name_data_color_size_local, reviews_of_customers_local):
+    for info_element, review_element in zip(review_info_local, review_text_local):
         count_of_review: int = 1
         ljust_formatter = max(len(review_element), len(info_element[3][8:]))
         dct = {"Номер отзыва": str(count_of_review).ljust(ljust_formatter),
@@ -71,8 +71,8 @@ if __name__ == "__main__":
         browser.get(link)
         logging.info("browset get link")
         scroll_page(browser)
-        name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
-        reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
+        review_info = [row.text.split('\n') for row in browser.find_elements(By.CLASS_NAME, "feedback__info")]
+        review_text = [review.text for review in browser.find_elements(By.CLASS_NAME, "feedback__text")]
         logging.info("Take name, date, color, size, text_of_reviews from page")
-        dump_result_in_csv(name_date_color_size, reviews_of_customers, number)
+        dump_result_csv(review_info, review_text, number)
         logging.info("FINISHED!")
