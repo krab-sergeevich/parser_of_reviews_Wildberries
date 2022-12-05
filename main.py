@@ -64,15 +64,13 @@ def dump_result_pandas(review_info_local: list[list[str]], review_text_local: li
 
 
 if __name__ == "__main__":
-    list_of_links = ['https://www.wildberries.ru/catalog/21659599/feedbacks?imtId=10317392',
-                     'https://www.wildberries.ru/catalog/37899721/feedbacks?imtId=28503636',
-                     'https://www.wildberries.ru/catalog/103125061/feedbacks?imtId=79985311']
-    for number, link in enumerate(list_of_links, 1):
-        browser.get(link)
-        logging.info("browset get link")
-        scroll_page(browser)
-        review_info = [row.text.split('\n') for row in browser.find_elements(By.CLASS_NAME, "feedback__info")]
-        review_text = [review.text for review in browser.find_elements(By.CLASS_NAME, "feedback__text")]
-        logging.info("Take name, date, color, size, text_of_reviews from page")
-        dump_result_csv(review_info, review_text, number)
-        logging.info("FINISHED!")
+    with open('product_review_links', 'r', encoding='utf-8') as links_file:
+        for result_number, link in enumerate(links_file.readlines(), 1):
+            browser.get(link)
+            logging.info("browset get link")
+            scroll_page(browser)
+            review_info = [row.text.split('\n') for row in browser.find_elements(By.CLASS_NAME, "feedback__info")]
+            review_text = [review.text for review in browser.find_elements(By.CLASS_NAME, "feedback__text")]
+            logging.info("Take name, date, color, size, text_of_reviews from page")
+            dump_result_csv(review_info, review_text, result_number)
+            logging.info("FINISHED!")
