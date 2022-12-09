@@ -1,4 +1,6 @@
 """ That's a program to parse reviews about some product from Wildberries web-site """
+import csv
+import logging
 from datetime import date
 
 import pandas as pd
@@ -7,33 +9,41 @@ from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
 
 s: Service = Service('/Users/macbookpro/Desktop/chromedriver')
-URL: str = 'https://www.wildberries.ru/catalog/21659599/feedbacks?imtId=10317392'
 browser: webdriver = webdriver.Chrome(service=s)
+logging.basicConfig(filename='app.log', filemode='w', format='%(process)d-%(levelname)s-%(message)s',
+                    level=logging.INFO)
 
 
 def scroll_page(browser_local: webdriver):
     """ scrolling to the end of the page"""
-
-    # Get scroll height
     last_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
-
+    logging.info("Take height of the page")
     while True:
-        # Scroll down to bottom
         browser_local.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-        # Wait to load page
+        logging.info("Scroll page to the down")
         browser.implicitly_wait(65.0)
-
-        # Calculate new scroll height and compare with last scroll height
+        logging.info("Wait for loading new information")
         new_height: browser_local = browser_local.execute_script("return document.body.scrollHeight")
+        logging.info("Take new height of the page")
         if new_height == last_height:
             break
         last_height: browser_local = new_height
 
 
-def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_of_customers_local: list[str]):
+def dump_result_csv(review_info_local: list[list[str]], review_text_local: list[str], number_local) -> None:
+    """ take info and dump in csv file """
+    with open(f'result{number_local}.csv', 'w', encoding='UTF8') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Имя заказчика', 'Дата отзыва', 'Цвет', 'Размер', 'Комментарий', 'Дата парсинга'])
+        logging.info("Write first row to csv to create names of columns")
+        for i, j in zip(review_info_local, review_text_local):
+            writer.writerow([i[0], i[1], i[2][6:], i[3][8:], j, str(date.today().strftime("%d/%m/%Y"))])
+        logging.info("Write infomation in csv file")
+
+
+def dump_result_pandas(review_info_local: list[list[str]], review_text_local: list[str]) -> pd.Series:
     """ take info and dump in pandas series """
-    for info_element, review_element in zip(name_data_color_size_local, reviews_of_customers_local):
+    for info_element, review_element in zip(review_info_local, review_text_local):
         count_of_review: int = 1
         ljust_formatter = max(len(review_element), len(info_element[3][8:]))
         dct = {"Номер отзыва": str(count_of_review).ljust(ljust_formatter),
@@ -45,15 +55,22 @@ def dump_result_in_pandas(name_data_color_size_local: list[list[str]], reviews_o
                "Дата парсинга": str(date.today().strftime('%d/%m/%Y')).ljust(ljust_formatter)}
         if count_of_review == 1:
             series = pd.Series(dct)
+            logging.info("Create pandas series and write information in series")
         else:
             series.append(pd.Series(dct))
+            logging.info("Write infomation in series")
         count_of_review += 1
     return series
 
 
 if __name__ == "__main__":
-    browser.get(URL)
-    scroll_page(browser)
-    name_date_color_size = [i.text.split('\n') for i in browser.find_elements(By.CLASS_NAME, "feedback__info")]
-    reviews_of_customers = [i.text for i in browser.find_elements(By.CLASS_NAME, "feedback__text")]
-    print(dump_result_in_pandas(name_date_color_size, reviews_of_customers))
+    with open('product_review_links', 'r', encoding='utf-8') as links_file:
+        for result_number, link in enumerate(links_file.readlines(), 1):
+            browser.get(link)
+            logging.info("browset get link")
+            scroll_page(browser)
+            review_info = [row.text.split('\n') for row in browser.find_elements(By.CLASS_NAME, "feedback__info")]
+            review_text = [review.text for review in browser.find_elements(By.CLASS_NAME, "feedback__text")]
+            logging.info("Take name, date, color, size, text_of_reviews from page")
+            dump_result_csv(review_info, review_text, result_number)
+            logging.info("FINISHED!")
